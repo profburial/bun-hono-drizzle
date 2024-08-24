@@ -1,37 +1,20 @@
 import { Hono } from "hono";
 import { authenticate, register, token } from "@app/lib/auth";
-import { userValidate } from "@app/db/schema";
-import { HTTPException } from "hono/http-exception";
-import { errorMessage } from "@app/lib/util/error";
+import { userValidate, loginValidate } from "@app/db/schema";
+import { validate } from "@app/lib/util/validate";
 
 const authRoutes = new Hono()
   .post("/login", async (c) => {
-    const input = userValidate
-      .pick({ email: true, password: true })
-      .safeParse(await c.req.json());
-
-    if (input.error) {
-      throw new HTTPException(422, {
-        message: errorMessage(input.error),
-      });
-    }
-
-    const user = await authenticate(input.data);
+    const input = await validate(c, loginValidate);
+    const user = await authenticate(input);
 
     return c.json({
       token: await token(user.id),
     });
   })
   .post("/register", async (c) => {
-    const input = userValidate.safeParse(await c.req.json());
-
-    if (input.error) {
-      throw new HTTPException(422, {
-        message: errorMessage(input.error),
-      });
-    }
-
-    const user = await register(input.data);
+    const input = await validate(c, userValidate);
+    const user = await register(input);
 
     return c.json({
       token: await token(user.id),

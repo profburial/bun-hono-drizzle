@@ -3,7 +3,9 @@ import { logger } from "hono/logger";
 import { HTTPException } from "hono/http-exception";
 import authRoutes from "@app/routes/auth";
 
-const app = new Hono({ strict: true })
+const app = new Hono({ strict: true });
+
+const routes = app
   .use(logger())
   .get("/", (c) => {
     return c.json(
@@ -25,7 +27,7 @@ const app = new Hono({ strict: true })
     );
   })
   .onError(async (error, c) => {
-    console.error(error);
+    console.error(error, typeof error);
 
     if (error instanceof HTTPException) {
       const response = error.getResponse();
@@ -47,3 +49,5 @@ const app = new Hono({ strict: true })
 export default {
   fetch: app.fetch,
 };
+
+export type AppType = typeof routes;

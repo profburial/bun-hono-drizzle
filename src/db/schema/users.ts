@@ -21,6 +21,7 @@ export const userSchema = z.object({
 });
 
 export const userValidate = userSchema.omit({ id: true, created_at: true });
+export const loginValidate = userValidate.pick({ email: true, password: true });
 
 export type UserResponse = typeof usersSchema.$inferSelect;
 export type UserParams = typeof usersSchema.$inferInsert;
